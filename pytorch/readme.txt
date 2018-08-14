@@ -12,6 +12,11 @@ bash Anaconda3-5.1.0-Linux-x86_64.sh
 
 follow the instructions on screen...
 
+--------------------------------------------
+If it doesn't work, Install from source:
+
+https://github.com/pytorch/pytorch#from-source
+
 ---------------------------------------------------------------------------------
 2) Create Anaconda Environment for Pytorch
 
