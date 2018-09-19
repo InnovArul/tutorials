@@ -21,5 +21,8 @@
     <ClCompile Include="classes_intro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="inheritance_shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
