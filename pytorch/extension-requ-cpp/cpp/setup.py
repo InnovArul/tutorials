@@ -2,9 +2,9 @@ from setuptools import setup
 from torch.utils.cpp_extension import BuildExtension, CppExtension
 
 setup(
-    name='lltm_cpp',
+    name='requ_cpp',
     ext_modules=[
-        CppExtension('lltm_cpp', ['lltm.cpp']),
+        CppExtension('requ_cpp', ['requ.cpp']),
     ],
     cmdclass={
         'build_ext': BuildExtension
