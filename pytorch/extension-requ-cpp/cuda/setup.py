@@ -2,11 +2,11 @@ from setuptools import setup
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 
 setup(
-    name='lltm_cuda',
+    name='requ_cuda',
     ext_modules=[
-        CUDAExtension('lltm_cuda', [
-            'lltm_cuda.cpp',
-            'lltm_cuda_kernel.cu',
+        CUDAExtension('requ_cuda', [
+            'requ_cuda.cpp',
+            'requ_cuda_kernel.cu',
         ]),
     ],
     cmdclass={

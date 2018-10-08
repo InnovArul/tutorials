@@ -4,21 +4,21 @@
 using namespace std;
 
 
-std::vector<at::Tensor> requ_forward(at::Tensor input)
+at::Tensor requ_forward(at::Tensor input)
 {
   cout << "cpp api called";
   auto relu_input = at::relu(input);
   auto output = at::pow(relu_input, 2);
-  return {output};
+  return output;
 }
 
-std::vector<at::Tensor> requ_backward(at::Tensor input,
+at::Tensor requ_backward(at::Tensor input,
                                       at::Tensor output, 
                                       at::Tensor grad_output) 
 {
   auto relu_input = at::relu(input) * 2;
   auto d_input = relu_input * grad_output;
-  return {d_input};
+  return d_input;
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {

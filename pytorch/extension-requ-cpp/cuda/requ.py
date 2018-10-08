@@ -3,10 +3,9 @@ from torch import nn
 from torch.autograd import Function
 import torch
 
-import requ_cpp
+import requ_cuda
 
 torch.manual_seed(42)
-
 
 class ReQUFunction(Function):
     @staticmethod
