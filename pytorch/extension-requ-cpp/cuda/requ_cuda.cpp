@@ -1,5 +1,5 @@
 #include <torch/torch.h>
-
+#include <stdio.h>
 #include <vector>
 
 // CUDA forward declarations

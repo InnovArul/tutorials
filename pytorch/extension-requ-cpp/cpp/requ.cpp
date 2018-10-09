@@ -6,7 +6,6 @@ using namespace std;
 
 at::Tensor requ_forward(at::Tensor input)
 {
-  cout << "cpp api called";
   auto relu_input = at::relu(input);
   auto output = at::pow(relu_input, 2);
   return output;
