@@ -3,14 +3,14 @@ from torch import nn
 from torch.autograd import Function
 import torch
 
-import requ_cuda
+import requ_cuda_2d
 
 torch.manual_seed(42)
 
 class ReQUFunction(Function):
     @staticmethod
     def forward(ctx, input):
-        output = requ_cuda.forward(input)
+        output = requ_cuda_2d.forward(input)
         variables = [input, output]
         ctx.save_for_backward(*variables)
 
@@ -19,7 +19,7 @@ class ReQUFunction(Function):
     @staticmethod
     def backward(ctx, grad_output):
         input, output = ctx.saved_variables
-        d_input = requ_cuda.backward(input, output, grad_output)
+        d_input = requ_cuda_2d.backward(input, output, grad_output)
         return d_input
 
 
