@@ -5,7 +5,7 @@ import random, more_itertools as mit
 
 create_renamed_data = False
 split_data = True
-num_splits = 5
+num_splits = 3
 train_num, val_num, test_num = 400, 100, 100
 
 def copy_files_into_folder(src_class_folder, split_folder, files):
@@ -70,6 +70,12 @@ if __name__ == '__main__':
     
     all_classes = list(classnamesnxx_to_english.values())
     random.shuffle(all_classes)
+
+    # remove extra classes
+    extra_classes = len(all_classes) - (len(all_classes) // num_splits) * num_splits
+    all_classes = all_classes[extra_classes:]
+
+    print('selected ', len(all_classes), ' classes for ', num_splits, ' splits')
 
     # split into num_splits sets 
     class_splits = mit.divide(num_splits, all_classes)
