@@ -1,11 +1,57 @@
-import torch, os
+import torch, os, torch.utils.data as data
 import torchvision
 import torchvision.transforms as transforms
 from tqdm import tqdm
 import numpy as np
+import h5py
+from PIL import Image
+import io
 
-########################################################################
-# The output of torchvision datasets are PILImage images of range [0, 1].
+class HDF5Dataset(data.Dataset):
+    def __init__(self, data_path, key, transform):
+        self.data_path = data_path
+        self.key = key
+        self.transform = transform
+
+        # find classes
+        self.h5_file = h5py.File(data_path, mode='r')
+        self.classes = self._find_classes()
+        self.class_to_idx = {} 
+        for i, class_ in enumerate(self.classes):
+            self.class_to_idx[class_] = i
+
+        # find all files
+        self.all_files = self._find_files()
+        self.h5_file.close()
+
+    def _find_classes(self):
+        return list(self.h5_file[self.key].keys())        
+
+    def _find_files(self):
+        all_files = []
+        for class_ in self.classes:
+            files = list(self.h5_file[self.key][class_])
+            for filename in files:
+                path = self.key + "/" + class_ + "/" + filename
+                all_files.append((path, self.class_to_idx[class_]))
+        
+        return all_files
+
+    def __len__(self):
+        return len(self.all_files)
+
+    def __getitem__(self, index):
+        h5_file = h5py.File(self.data_path, mode='r')
+        path, class_ = self.all_files[index]
+
+        # read byte array
+        byte_arr = np.array(h5_file[path])
+        img = Image.open(io.BytesIO(byte_arr))
+        h5_file.close()
+
+        if self.transform is not None: img = self.transform(img)
+        return img, class_
+
 
 ########################################################################
 # Define a Convolution Neural Network
@@ -23,9 +69,6 @@ import torchvision.models as models
 # 2. Number of conv layers
 # 3. Kernel size
 # etc etc.,
-
-num_epochs = 50         # desired number of training epochs.
-learning_rate = 0.001   
 
 class Net(nn.Module):
     def __init__(self):
@@ -51,6 +94,7 @@ class Net(nn.Module):
         return x
 
 ################### DO NOT EDIT THE BELOW CODE!!! #######################
+
 ########################################################################
 # Train the network
 # ^^^^^^^^^^^^^^^^^^^^
@@ -110,7 +154,7 @@ def classwise_test(testloader, model):
 ########################################################################
 # class-wise accuracy
 
-    classes, _ = find_classes(train_data_dir)
+    classes, _ = trainset.classes
     n_class = len(classes) # number of classes
 
     class_correct = list(0. for i in range(n_class))
@@ -135,6 +179,12 @@ def classwise_test(testloader, model):
 
 if __name__ == '__main__':
 
+    num_epochs = 50         # desired number of training epochs.
+    learning_rate = 0.001   
+
+    ########################################################################
+    # The output of torchvision datasets are PILImage images of range [0, 1].
+
     # Apply necessary image transfromations here 
 
     transform = transforms.Compose([ #torchvision.transforms.RandomHorizontalFlip(p=0.5),
@@ -143,23 +193,21 @@ if __name__ == '__main__':
                                     transforms.Normalize(mean=[0.5,0.5,0.5], std=[0.5, 0.5, 0.5])])
     print(transform)
 
+    data_path = 'data_to_pth/dataset_1.hdf5' # put path of training dataset
 
-    train_data_dir = './data_to_pth/1/train' # put path of training dataset
-    val_data_dir = './data_to_pth/1/val' # put path of validation dataset
-    test_data_dir = './data_to_pth/1/test' # put path of test dataset
-
-    trainset = torchvision.datasets.ImageFolder(root= train_data_dir, transform=transform)
+    workers = 2
+    trainset = HDF5Dataset(data_path=data_path, key='train', transform=transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
-                                            shuffle=True, num_workers=2)
+                                            shuffle=True, num_workers=workers)
 
-    valset = torchvision.datasets.ImageFolder(root= val_data_dir, transform=transform)
+    valset = HDF5Dataset(data_path=data_path, key='val', transform=transform)
     valloader = torch.utils.data.DataLoader(valset, batch_size=4,
-                                            shuffle=False, num_workers=2)
+                                            shuffle=False, num_workers=workers)
 
-    testset = torchvision.datasets.ImageFolder(root= test_data_dir, transform=transform)
+    testset = HDF5Dataset(data_path=data_path, key='test', transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                            shuffle=False, num_workers=2)
-
+                                            shuffle=False, num_workers=workers)
+                                            
     #net = ResNet()
     net = Net()
 
